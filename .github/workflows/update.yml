@@ -8,6 +8,8 @@ on:
 jobs:
   update-blocklist:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Allow pushing to the repo
     
     steps:
       - name: Checkout Repo
@@ -44,7 +46,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .
+          
+          # Only add the Blocklist files, IGNORING secrets
+          git add domains*.txt ipaddress*.txt situs*.txt
           
           # Check if there are changes
           if git diff --staged --quiet; then

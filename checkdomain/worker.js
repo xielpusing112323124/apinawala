@@ -3,8 +3,8 @@ addEventListener('fetch', event => {
 })
 
 const CACHE_TTL = 3600;
-// Updated URL to correct "latest release" download path
-const CACHE_KEY = 'https://github.com/Skiddle-ID/blocklist/releases/latest/download/domains.txt';
+// Updated to point to YOUR repository (First part of the list)
+const CACHE_KEY = 'https://raw.githubusercontent.com/xielpusing112323124/apinawala/main/domains_part001.txt';
 
 async function getDomainList() {
   // Fetch follows redirects by default in Workers standard environment

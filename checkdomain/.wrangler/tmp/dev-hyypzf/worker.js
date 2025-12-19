@@ -285,7 +285,7 @@
     event.respondWith(handleRequest(event.request));
   });
   var CACHE_TTL = 3600;
-  var CACHE_KEY = "https://github.com/Skiddle-ID/blocklist/releases/latest/download/domains.txt";
+  var CACHE_KEY = "https://raw.githubusercontent.com/xielpusing112323124/apinawala/main/domains_part001.txt";
   async function getDomainList() {
     const response = await fetch(CACHE_KEY, {
       redirect: "follow",
