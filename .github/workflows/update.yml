@@ -1,0 +1,57 @@
+name: Update Blocklist
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Every hour
+  workflow_dispatch:
+
+jobs:
+  update-blocklist:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.BOT_GITHUB_TOKEN || github.token }}
+
+      - name: Setup OpenVPN
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openvpn unzip
+          echo "${{ secrets.OPENVPN_CONFIG }}" > config.ovpn
+          echo "${{ secrets.OPENVPN_CREDENTIALS }}" > vpn-auth.txt
+          sudo openvpn --config config.ovpn --auth-user-pass vpn-auth.txt --daemon
+          sleep 15 # Wait for connection
+        shell: bash
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Generate Blocklist
+        run: node scripts/generate.js
+        env:
+          SOURCE_URL: "https://trustpositif.komdigi.go.id/assets/db/domains"
+
+      - name: Kill OpenVPN
+        if: always()
+        run: sudo pkill openvpn
+        continue-on-error: true
+
+      - name: Commit and Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          
+          # Check if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          
+          now=$(date +"%Y-%m-%d %H:%M:%S")
+          git commit -m "Update blocklist $now"
+          git push
